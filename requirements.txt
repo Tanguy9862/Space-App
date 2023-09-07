@@ -1,0 +1,10 @@
+dash==2.10.2
+dash_bootstrap_components==1.4.1
+dash_extensions==1.0.1
+dash_iconify==0.1.2
+dash_mantine_components==0.12.1
+iso3166==2.0.2
+pandas==1.4.2
+plotly==5.8.0
+
+numpy~=1.25.1

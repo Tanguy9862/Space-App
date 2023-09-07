@@ -1,0 +1,11 @@
+body {
+background: rgb(11,6,84);
+/* background: linear-gradient(90deg, rgba(11,6,84,1) 0%, rgba(1,4,20,1) 75%); */
+/* background: linear-gradient(90deg, rgba(11,6,84,1) 0%, rgba(0, 0, 0, 1) 75%); */
+background: linear-gradient(90deg, rgba(11,6,84,1) 0%, rgba(1,4,20,1) 45%, rgba(0,0,0,1) 75%);
+}
+
+/*
+#0e0967
+70 ou 75%
+*/

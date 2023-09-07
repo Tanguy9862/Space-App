@@ -1,0 +1,23 @@
+.graph-container {
+    width: 550px;
+    height: 550px;
+}
+
+@media (max-width: 767px) {
+    .graph-container {
+        width: 45vh;
+        height: 45vh;
+    }
+
+    .stack-left-container {
+        margin-top: -30px
+    }
+
+    .right-container {
+        margin-top: -100px
+    }
+}
+
+.right-container {
+    height: 90vh;
+}

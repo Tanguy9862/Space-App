@@ -1,0 +1,15 @@
+.bg-lottie {
+    position: absolute;
+    opacity: 0.3;
+    left:0;
+    z-index: -1;
+}
+
+.constellation {
+    margin-top: 50px;
+}
+
+.hide {
+    opacity: 0
+}
+
