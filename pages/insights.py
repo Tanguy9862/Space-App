@@ -10,6 +10,9 @@ import plotly.graph_objects as go
 import json
 import datetime as dt
 
+now = dt.datetime.now()
+DATE_UPDATE = now.strftime('%Y-%m-%d %H:%M')
+
 FIG_CONFIG = {
     'displayModeBar': False,
     'scrollZoom': False,
@@ -22,15 +25,59 @@ with open('assets/data/next_launch_data.json', 'r', encoding='utf-8') as json_fi
 dash.register_page(__name__, title='Space Exploration | Insights')
 
 
-def right_content_next_launch(rocket_name, mission_description):
+def right_content_next_launch(rocket_name, mission_description, live_link):
     return [
         dmc.Title(rocket_name, order=3, color='white', align='center'),
-        dmc.Text(mission_description, color='white', align='center')
+        dmc.Spoiler(
+            showLabel='Show more..',
+            hideLabel='Hide',
+            maxHeight=95,
+            style={'text-align': 'center'},
+            children=[
+                dmc.Text(mission_description, color='white', align='center')
+            ]
+        ),
+        *[
+            dmc.Anchor(
+                [
+                    dmc.Button(
+                        'live',
+                        uppercase=True,
+                        variant='transparent',
+                        color='grape',
+                        size='lg',
+                        leftIcon=DashIconify(icon='solar:play-line-duotone'),
+                        mt=25,
+                    )
+                ],
+                href=live_link
+            )
+            if live_link else None
+        ]
+
     ]
 
 
-def right_content_on_year():
-    return []
+def right_content_on_year(most_used_model, organisation, model_launches, year):
+    return [
+        dmc.Grid(
+            [
+                dmc.Col([dmc.Title(most_used_model, order=3, color='white', align='center')], span=12),
+                dmc.Col(
+                    [
+                        dmc.Text(
+                            [
+                                f'The most frequently launched rocket model in the year {year} is '
+                                f'{most_used_model} ({organisation}), with a total of {model_launches} launches.'
+                            ],
+                            color='white', align='center'
+                        )
+                    ],
+                    span=12
+                )
+            ]
+        )
+    ]
 
 
 def right_content(general_data, title, add_content_fn, image=None, *args, **kwargs):
@@ -52,18 +99,27 @@ def right_content(general_data, title, add_content_fn, image=None, *args, **kwar
                         )
                     ]
                 )
-                for features, values in general_data.items()],
+                    for features, values in general_data.items()],
                 *[
-                    dmc.Image(
-                        src=image,
-                        mt=25,
-                        mb=15,
-                        radius=4,
-                        withPlaceholder=True,
-                        style={'width': '70%'},
-                        styles={
-                            'placeholder': {'background-color': '#000000'}
-                        }
+                    dmc.Col(
+                        [
+                            dmc.Image(
+                                src=image,
+                                mt=25,
+                                mb=15,
+                                radius=4,
+                                withPlaceholder=True,
+                                style={
+                                    'width': '65%',
+                                    'display': 'block',
+                                    'margin-left': 'auto',
+                                    'margin-right': 'auto'
+                                },
+                                styles={
+                                    'placeholder': {'background-color': '#000000'}
+                                }
+                            )
+                        ], span=12
                     )
                 ],
                 *add_content_fn(*args, **kwargs)
@@ -80,146 +136,158 @@ def get_highest_values(df, target):
     return new_df.loc[new_df.Count.idxmax(), target]
 
 
-layout = dmc.Grid(
+layout = dmc.NotificationsProvider(
     [
-        dmc.Col(
+        dmc.Grid(
             [
-                dmc.Container(
+                dmc.Col(
                     [
-                        dmc.Group(
+                        dmc.Container(
                             [
-                                *[
-                                    dmc.Stack(
-                                        [
-                                            dmc.Text(key, transform='uppercase', color='rgba(255, 255, 255, 0.4)',
-                                                     style={'font-size': '1rem'}),
-                                            dmc.Title(value, color='white', order=4)
-                                        ],
-                                        spacing=0
-                                    )
-                                    for key, value in next_launch_data[0].items() if
-                                    key in {'NEXT LAUNCH', 'ORGANISATION',
-                                            'ROCKET'}
-                                ],
-                                *[
-                                    dmc.Tooltip(
-                                        [
-                                            dmc.ActionIcon(
-                                                DashIconify(icon='ri:more-fill', color='white'),
-                                                id='next-launch-btn',
-                                                variant='outline',
-                                                radius='lg'
-                                            )
-                                        ],
-                                        label='View upcoming rocket launch details',
-                                        withArrow=True,
-                                        transition='fade'
-                                    )
-
-                                ]
-                            ],
-                            position='apart',
-                            mb='lg'
-                        ),
-                        dmc.Divider(labelPosition='center', label='Launches over time', color='white', mt=35, mb=20),
-                        dmc.Group(
-                            [
-
-                                dmc.ActionIcon(
-                                    DashIconify(icon='iconoir:rocket', width=20),
-                                    id='success',
-                                    size='lg',
-                                    color='green',
-                                    variant='outline',
-                                    radius='lg'
-                                ),
-                                dmc.ActionIcon(
-                                    DashIconify(icon='tabler:rocket-off', width=20),
-                                    id='failure',
-                                    size='lg',
-                                    color='red',
-                                    variant='outline',
-                                    radius='lg'
-                                ),
-                                dmc.Tooltip(
+                                dmc.Group(
                                     [
+                                        *[
+                                            dmc.Stack(
+                                                [
+                                                    dmc.Text(key, transform='uppercase',
+                                                             color='rgba(255, 255, 255, 0.4)',
+                                                             style={'font-size': '1rem'}),
+                                                    dmc.Title(value, color='white', order=4)
+                                                ],
+                                                spacing=0
+                                            )
+                                            for key, value in next_launch_data[0].items() if
+                                            key in {'NEXT LAUNCH', 'ORGANISATION',
+                                                    'ROCKET'}
+                                        ],
+                                        *[
+                                            dmc.Tooltip(
+                                                [
+                                                    dmc.ActionIcon(
+                                                        DashIconify(icon='ri:more-fill', color='white'),
+                                                        id='next-launch-btn',
+                                                        variant='outline',
+                                                        radius='lg'
+                                                    )
+                                                ],
+                                                label='View upcoming rocket launch details',
+                                                withArrow=True,
+                                                transition='fade'
+                                            )
+
+                                        ]
+                                    ],
+                                    position='apart',
+                                    mb='lg'
+                                ),
+                                dmc.Divider(labelPosition='center', label='Launches over time', color='white', mt=35,
+                                            mb=20),
+                                dmc.Group(
+                                    [
+
                                         dmc.ActionIcon(
-                                            [
-                                                DashIconify(icon='ic:baseline-restore', width=20),
-                                            ],
-                                            id='monthly-restore',
+                                            DashIconify(icon='iconoir:rocket', width=20),
+                                            id='success',
+                                            size='lg',
+                                            color='green',
                                             variant='outline',
-                                            size="lg",
                                             radius='lg'
                                         ),
+                                        dmc.ActionIcon(
+                                            DashIconify(icon='tabler:rocket-off', width=20),
+                                            id='failure',
+                                            size='lg',
+                                            color='red',
+                                            variant='outline',
+                                            radius='lg'
+                                        ),
+                                        dmc.Tooltip(
+                                            [
+                                                dmc.ActionIcon(
+                                                    [
+                                                        DashIconify(icon='ic:baseline-restore', width=20),
+                                                    ],
+                                                    id='monthly-restore',
+                                                    variant='outline',
+                                                    size="lg",
+                                                    radius='lg'
+                                                ),
+                                            ],
+                                            label='Reset to include all Years',
+                                            withArrow=True,
+                                            transition='fade'
+                                        )
                                     ],
-                                    label='Reset to include all Years',
-                                    withArrow=True,
-                                    transition='fade'
-                                )
-                            ],
-                            mt=15,
-                            position='center'
-                        ),
-                        dcc.Graph(
-                            id='launches-fig',
-                            figure=fig_launch_per_year,
-                            config=FIG_CONFIG
-                        ),
-                    ],
-                    px=0,
-                    style={
-                        'background-color': 'rgba(0,0,0,0)',
-                        'width': '85%',
-                    }
-                ),
-                dmc.Container(
-                    [
-                        dmc.Grid(
-                            [
-                                dmc.Col(
-                                    [
-                                        dcc.Graph(id='monthly-launches-fig', figure=fig_monthly, config=FIG_CONFIG)
-                                    ],
-                                    lg=6, md=12
+                                    mt=15,
+                                    position='center'
                                 ),
-                                dmc.Col(
-                                    [
-                                        dcc.Graph(id='sunburst-fig', figure=sunburst_fig, config=FIG_CONFIG)
-                                    ],
-                                    offsetLg=2,
-                                    lg=4, md=12
-                                )
+                                dcc.Graph(
+                                    id='launches-fig',
+                                    figure=fig_launch_per_year,
+                                    config=FIG_CONFIG
+                                ),
                             ],
-                            mt=35
-                        )
+                            px=0,
+                            style={
+                                'background-color': 'rgba(0,0,0,0)',
+                                'width': '85%',
+                            }
+                        ),
+                        dmc.Container(
+                            [
+                                dmc.Grid(
+                                    [
+                                        dmc.Col(
+                                            [
+                                                dcc.Graph(id='monthly-launches-fig', figure=fig_monthly,
+                                                          config=FIG_CONFIG)
+                                            ],
+                                            lg=6, md=12
+                                        ),
+                                        dmc.Col(
+                                            [
+                                                dcc.Graph(id='sunburst-fig', figure=sunburst_fig, config=FIG_CONFIG)
+                                            ],
+                                            offsetLg=2,
+                                            lg=4, md=12
+                                        )
+                                    ],
+                                    mt=35
+                                )
 
+                            ],
+                            p=0,
+                            style={'width': '85%'},
+                            mt='lg',
+                            mb=25
+                        )
                     ],
-                    p=0,
-                    style={'width': '85%'},
-                    mt='lg',
-                    mb=25
+                    mt=70,
+                    md=12,
+                    lg=8,
+                ),
+                dmc.Col(
+                    [
+                        dmc.Stack(
+                            id='right-content',
+                            align='center',
+                            mb=25
+                        )
+                    ],
+                    offsetLg=1,
+                    offsetMd=0,
+                    mt=70,
+                    md=12,
+                    lg=3
+                ),
+                dmc.Col(
+                    [
+                        dmc.Container(id='notifications-container')
+                    ]
                 )
             ],
-            mt=70,
-            md=12,
-            lg=8,
-        ),
-        dmc.Col(
-            [
-                dmc.Stack(
-                    id='right-content',
-                    align='center',
-                    mb=25
-                )
-            ],
-            offsetLg=1,
-            offsetMd=0,
-            mt=70,
-            md=12,
-            lg=3
-        ),
-    ],
+        )
+    ]
 )
 
 
@@ -236,7 +304,7 @@ def update_right_content(data, _):
     if input_id == 'launches-fig':
         general_data = dict()
         year = data['points'][0]['x']
-        df_year = df.query('YEAR_LAUNCH == @year')
+        df_year = df.query('YEAR_LAUNCH == @year').copy()
         general_data['Avg'] = [
             'Average price per rocket',
             f'${df_year["Price"].mean().round(1)}M' if not isnan(df_year["Price"].mean()) else "-"
@@ -246,7 +314,24 @@ def update_right_content(data, _):
             for col in ['Country', 'Organisation']
         ]
 
-        return right_content(general_data, title=year, add_content_fn=right_content_on_year), 'hide'
+        # Get the most used rocket model in the selected year
+        df_year['Rocket_Model'] = df_year['Detail'].str.split('|').str[0].str.strip()
+        df_year['Rocket_Model'] = df_year['Rocket_Model'].str.replace(r' \(.*\)', '', regex=True).str.strip()
+        df_year['Rocket_Model'] = df_year['Rocket_Model'].apply(lambda x: x.split('/')[0] if '/' in x else x)
+        most_used_model = df_year.groupby(['Rocket_Model', 'Organisation']).agg(
+            {'Detail': 'count', 'Image_Link': 'first'}).reset_index()
+        most_used_model = most_used_model.sort_values('Detail', ascending=False).iloc[0]
+
+        return right_content(
+            general_data,
+            title=year,
+            add_content_fn=right_content_on_year,
+            image=most_used_model['Image_Link'],
+            most_used_model=most_used_model['Rocket_Model'],
+            organisation=most_used_model['Organisation'],
+            model_launches=most_used_model['Detail'],
+            year=year
+        ), 'hide'
 
     else:
         branch = next_launch_data[0]
@@ -265,7 +350,8 @@ def update_right_content(data, _):
             image=branch['IMAGE'],
             add_content_fn=right_content_next_launch,
             rocket_name=branch['ROCKET'],
-            mission_description=branch['MISSION DETAIL']
+            mission_description=branch['MISSION DETAIL'],
+            live_link=branch['VIDEO']
         ), 'hide'
 
 
@@ -344,13 +430,26 @@ def update_monthly_plot(data, _):
     else:
         return fig_monthly, sunburst_fig
 
-# TODO:
-# Right content year:
-# Rocket la plus utilisée + photo de la rocket
 
-# Next launch right content :
-# Btn pour voir le live (badge), ne pas oublier le lien live n'est pas tjrs dispo donc parfois None
-# Show more pour la mission detail qd trop long
+@callback(
+    Output('notifications-container', 'children'),
+    Input('notifications-container', 'children')
+)
+def show_notifications(_):
+    return [
+        dmc.Notification(
+            id='notif',
+            title='Data Last Updated',
+            action='show',
+            message=f'Last updated on {DATE_UPDATE}',
+            autoClose=False,
+            # icon=DashIconify(icon='material-symbols:system-update-alt'),
+            style={'background-color': 'rgba(0, 0, 0, 0)', 'border': 'none'}
+        ),
+    ]
+
+# TODO:
+# Next launch right content : x
 # Decorateurs sur right content (cf fn rouge)
 # Decorateurs insights_processins (cf fn rouge)
 
@@ -359,8 +458,13 @@ def update_monthly_plot(data, _):
 # Utiliser patch pour le pb du globe ? donc plus de clientside callback
 
 # General :
-# Description texte du site
-# Icone du site
-# Image miniature (ce qui apparaît qd on poste sur des forums ou réseaux par ex)
-# Meta tags : demander à chat gpt
-# Page 404
+# d/ Description texte du site
+# d/ Icone du site
+# d/ Image miniature (ce qui apparaît qd on poste sur des forums ou réseaux par ex)
+# d/ Meta tags : demander à chat gpt
+# d/ Page 404
+# s/ Integrer les scrapers (next launch, past launch, wikipedia+adapter le scraper pr scrap seulement les nouvelles données)
+# s/ Réorganiser le dossier data : sous dossier processing avec figure/nom_processing
+# s/ Renomer 'space_data.csv' par 'past_launches_data.csv'
+# s/ Notification last update data
+# s/ Importer la fonction convert_date dans insight processing depuis le scraper

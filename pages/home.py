@@ -78,6 +78,7 @@ layout = dmc.Grid(
                                 'displayModeBar': False,
                                 'scrollZoom': False,
                                 'doubleClick': False,
+                                'staticPlot': True
                             }
                         ),
                     ], className='right-container'
@@ -103,8 +104,8 @@ clientside_callback(
 clientside_callback(
     """
     function(_, figure) {
-        var rotation_lon = figure.layout.geo.projection.rotation.lon;
-        var rotation_lat = figure.layout.geo.projection.rotation.lat;
+        let rotation_lon = figure.layout.geo.projection.rotation.lon;
+        let rotation_lat = figure.layout.geo.projection.rotation.lat;
 
         if (rotation_lon <= -180) {
             rotation_lon = 180;
@@ -120,7 +121,7 @@ clientside_callback(
             rotation_lat = -90;
         }
 
-        if (Math.abs(0 - rotation_lat) <= 0.01) {
+        if (Math.abs(0 - rotation_lat) < 0.01) {
             rotation_lat = 0;
         }
 

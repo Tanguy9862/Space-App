@@ -3,6 +3,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from assets.data.data_processing import df
 
+FORMATS = ["%a %b %d, %Y", "%a %b %d, %Y %H:%M UTC", "%Y-%m-%d", "%Y-%m-%d %H:%M:%S"]
 BG_TRANSPARENT = 'rgba(0,0,0,0)'
 WITHOUT_PADDING = dict(pad=15, t=0, b=0, l=0, r=0)
 HOVERLABEL_TEMPLATE = dict(
@@ -13,8 +14,8 @@ HOVERLABEL_TEMPLATE = dict(
     )
 )
 
-df['YEAR_LAUNCH'] = df.Date.str.split(",").str[1].str.strip().str.split(" ").str[0]
-df['YEAR_LAUNCH'] = pd.DatetimeIndex(df['YEAR_LAUNCH']).year
+# df['YEAR_LAUNCH'] = df.Date.str.split(",").str[1].str.strip().str.split(" ").str[0]
+df['YEAR_LAUNCH'] = pd.DatetimeIndex(df['Date']).year
 
 
 ## LAUNCH PER YEAR
@@ -52,12 +53,21 @@ fig_launch_per_year.update_traces(
 
 ## BEST MONTHS
 
-def get_formatted_date(x):
-    if 'UTC' in x:
-        x = x.rsplit(" ", 2)[0]
-        return pd.to_datetime(x, format="%a %b %d, %Y")
-    else:
-        pd.to_datetime(x, format="%a %b %d, %Y")
+# def get_formatted_date(x):
+#     if 'UTC' in x:
+#         x = x.rsplit(" ", 2)[0]
+#         return pd.to_datetime(x, format="%a %b %d, %Y")
+#     else:
+#         pd.to_datetime(x, format="%a %b %d, %Y")
+
+
+def convert_to_date(date_str):
+    for date_format in FORMATS:
+        try:
+            return pd.to_datetime(date_str, format=date_format)
+        except ValueError:
+            pass
+    return None
 
 
 def get_launch_per_month(df, year=None):
@@ -71,7 +81,7 @@ def get_launch_per_month(df, year=None):
     return new_df.sort_values(by='MONTH', key=lambda x: pd.to_datetime(x, format='%B')).iloc[::-1]
 
 
-df['FORMATTED_DATE'] = df['Date'].apply(lambda x: get_formatted_date(x))
+df['FORMATTED_DATE'] = df['Date'].apply(lambda x: convert_to_date(x))
 df_best_month_launch = df.groupby(['FORMATTED_DATE', 'YEAR_LAUNCH']).size().reset_index(name='TOTAL')
 df_best_month_launch['MONTH'] = df_best_month_launch['FORMATTED_DATE'].dt.strftime('%B')
 df_monthly = get_launch_per_month(df_best_month_launch)
