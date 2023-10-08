@@ -6,8 +6,8 @@ from numpy import where
 pd.options.display.float_format = '{:,.2f}'.format
 pd.set_option('display.max_columns', None)
 
-# df = pd.read_csv('assets/data/space_data.csv').drop(['Unnamed: 0.1', 'Unnamed: 0'], axis=1)
-df = pd.read_csv('assets/data/space_data.csv')
+# df = pd.read_csv('assets/data/past_launches_data.csv').drop(['Unnamed: 0.1', 'Unnamed: 0'], axis=1)
+df = pd.read_csv('data/past_launches_data.csv')
 df['Country'] = df.Location.str.rsplit(',').str[-1].str.strip()
 df.loc[(df.Country == "Russia"), "Country"] = "Russian Federation"
 df.loc[(df.Country == "New Mexico"), "Country"] = "USA"

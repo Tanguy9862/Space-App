@@ -3,7 +3,7 @@ from dash import dcc, Input, Output, State, clientside_callback
 import dash_mantine_components as dmc
 from dash_iconify import DashIconify
 import dash_extensions as de
-from assets.choropleth import fig
+from utils.choropleth import fig
 
 # TODO:
 # Corriger responsive : text trop large, et trop d'espace globe sur mobile

@@ -1,5 +1,5 @@
 import plotly.express as px
-from assets.data.data_processing import df
+from utils.data_processing import df
 
 launch_per_countries = df.groupby(['country_code', 'Country']).size().reset_index().rename(columns={0: 'Total Number of Launches'})
 

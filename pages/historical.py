@@ -1,20 +1,21 @@
 import dash
-from dash import html, dcc, callback, Input, Output, State, ctx, no_update, clientside_callback
+from dash import dcc, callback, Input, Output, ctx, no_update, clientside_callback
 import dash_mantine_components as dmc
 import dash_extensions as de
 from dash_iconify import DashIconify
-from assets.cytoscape import nodes_big_dipper, edges_big_dipper, nodes_orion, edges_orion, nodes_scorpion, \
+from utils.cytoscape import nodes_big_dipper, edges_big_dipper, nodes_orion, edges_orion, nodes_scorpion, \
     edges_scorpion, constellation
 from random import sample
 import json
 import datetime
+import os
 
 LOTTIE_URL = 'https://lottie.host/bd952b99-002b-42d6-875e-57a7924ce27c/pEXSm4MJxX.json'
 LOTTIE_OPTIONS = dict(loop=True, autoplay=True)
 
 dash.register_page(__name__, title='Space Exploration | Historical')
 
-with open('assets/data/historical_data.json', 'r', encoding='utf-8') as json_file:
+with open('data/historical_data.json', 'r', encoding='utf-8') as json_file:
     historical_data = json.load(json_file)
 
 all_years = [int(item['DATE'].split(',')[-1].strip()) for item in historical_data] + [1950]

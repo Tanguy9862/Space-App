@@ -1,8 +1,8 @@
 import dash
 import dash_mantine_components as dmc
 from dash import dcc, callback, Input, Output, ctx, Patch, clientside_callback
-from assets.data.data_processing import df
-from assets.insights_processing import fig_launch_per_year, fig_monthly, df_best_month_launch, get_launch_per_month, \
+from utils.data_processing import df
+from utils.insights_processing import fig_launch_per_year, fig_monthly, df_best_month_launch, get_launch_per_month, \
     sunburst_fig, df_sunburst, filter_sunburst_year, plot_sunburst
 from dash_iconify import DashIconify
 from numpy import isnan
@@ -19,7 +19,7 @@ FIG_CONFIG = {
     'showTips': False
 }
 
-with open('assets/data/next_launch_data.json', 'r', encoding='utf-8') as json_file:
+with open('data/next_launch_data.json', 'r', encoding='utf-8') as json_file:
     next_launch_data = json.load(json_file)
 
 dash.register_page(__name__, title='Space Exploration | Insights')
@@ -443,28 +443,12 @@ def show_notifications(_):
             action='show',
             message=f'Last updated on {DATE_UPDATE}',
             autoClose=False,
-            # icon=DashIconify(icon='material-symbols:system-update-alt'),
-            style={'background-color': 'rgba(0, 0, 0, 0)', 'border': 'none'}
+            icon=DashIconify(icon='material-symbols:system-update-alt'),
+            style={'background-color': 'rgba(0, 0, 0, 0)', 'border': 'none', 'color': 'white'},
+            styles={
+                'title': {'color': 'white'},
+                'description': {'color': '#E6E6E6'}
+            }
+
         ),
     ]
-
-# TODO:
-# Next launch right content : x
-# Decorateurs sur right content (cf fn rouge)
-# Decorateurs insights_processins (cf fn rouge)
-
-# Home :
-# Prendre la fn python et demande à chatgpt de mettre l'équivalent javascript et vérifier si ça marche bien
-# Utiliser patch pour le pb du globe ? donc plus de clientside callback
-
-# General :
-# d/ Description texte du site
-# d/ Icone du site
-# d/ Image miniature (ce qui apparaît qd on poste sur des forums ou réseaux par ex)
-# d/ Meta tags : demander à chat gpt
-# d/ Page 404
-# s/ Integrer les scrapers (next launch, past launch, wikipedia+adapter le scraper pr scrap seulement les nouvelles données)
-# s/ Réorganiser le dossier data : sous dossier processing avec figure/nom_processing
-# s/ Renomer 'space_data.csv' par 'past_launches_data.csv'
-# s/ Notification last update data
-# s/ Importer la fonction convert_date dans insight processing depuis le scraper
