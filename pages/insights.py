@@ -22,7 +22,13 @@ FIG_CONFIG = {
 with open('data/next_launch_data.json', 'r', encoding='utf-8') as json_file:
     next_launch_data = json.load(json_file)
 
-dash.register_page(__name__, title='Space Exploration | Insights')
+dash.register_page(
+    __name__,
+    image='assets/insights.png',
+    title='Space Exploration | Insights',
+    description='Get real-time analytics on space launches. Interactive dashboards allow you to filter by year, '
+                'providing insights into launch success rates, most active organizations, and more'
+)
 
 
 def right_content_next_launch(rocket_name, mission_description, live_link):
@@ -116,7 +122,8 @@ def right_content(general_data, title, add_content_fn, image=None, *args, **kwar
                                     'margin-right': 'auto'
                                 },
                                 styles={
-                                    'placeholder': {'background-color': '#000000'}
+                                    'placeholder': {'background-color': '#000000'},
+                                    'image': {'border-radius': '50%', 'object-fit': 'cover'}
                                 }
                             )
                         ], span=12

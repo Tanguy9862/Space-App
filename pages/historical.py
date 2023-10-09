@@ -13,7 +13,13 @@ import os
 LOTTIE_URL = 'https://lottie.host/bd952b99-002b-42d6-875e-57a7924ce27c/pEXSm4MJxX.json'
 LOTTIE_OPTIONS = dict(loop=True, autoplay=True)
 
-dash.register_page(__name__, title='Space Exploration | Historical')
+dash.register_page(
+    __name__,
+    image='assets/historical.png',
+    title='Space Exploration | Historical',
+    description='Dive into the key milestones of space exploration, presented in a unique cytoscape constellation '
+                'format. Each point represents a significant event, complete with descriptions and images'
+)
 
 with open('data/historical_data.json', 'r', encoding='utf-8') as json_file:
     historical_data = json.load(json_file)
@@ -32,10 +38,12 @@ def right_content(*, date, country, description, image):
                     src=image,
                     width='100%',
                     height='100%',
-                    radius=4,
+                    #radius=4,
                     withPlaceholder=True,
+                    #style={'border-radius': '50%'},
                     styles={
-                        'placeholder': {'background-color': '#000000'}
+                        'placeholder': {'background-color': '#000000'},
+                        'image': {'border-radius': '50%', 'object-fit': 'cover'}
                     },
                 ),
             ],
@@ -128,6 +136,9 @@ layout = dmc.Grid(
     Input('range-historical-data', 'data')
 )
 def update_cytoscape(_, year_range):
+    import pprint
+    pp = pprint.PrettyPrinter()
+    pp.pprint(dash.page_registry.values())
     nodes = nodes_big_dipper + nodes_orion + nodes_scorpion
     edges = edges_big_dipper + edges_orion + edges_scorpion
 
@@ -180,16 +191,13 @@ def update_historical_content(node_data, all_data):
         ), 'hide'
 
 
-clientside_callback(
-    """
-    function(className) {
-        return "fade-in";
-    }
-    """,
+@callback(
     Output('historical-content', 'className', allow_duplicate=True),
     Input('historical-content', 'className'),
     prevent_initial_call=True
 )
+def animation(_):
+    return 'fade-in'
 
 
 @callback(Output('range-historical-data', 'data'), Input('year-slider', 'value'))

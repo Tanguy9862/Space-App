@@ -45,7 +45,7 @@ def navbar():
                             'font-size': 15,
                         },
                         id={'type': 'dynamic-link', 'index': idx},
-                    ) for idx, page in enumerate(dash.page_registry.values())
+                    ) for idx, page in enumerate(dash.page_registry.values()) if page['module'] != 'pages.not_found_404'
                 ],
                 title='Choose your exploration..',
                 size='100%',

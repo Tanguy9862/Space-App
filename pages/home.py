@@ -5,19 +5,19 @@ from dash_iconify import DashIconify
 import dash_extensions as de
 from utils.choropleth import fig
 
-# TODO:
-# Corriger responsive : text trop large, et trop d'espace globe sur mobile
-# 3e page: en rapport avec les lancements/rockets/argent/coût (sous page)
-# genre à droite (right content) nav burger
-# à gauche contenu des mini pages, par exemple des mini card avec mini graph et quand on clique dessus
-    #  -> effet modal avec + d'options
-
 CHOROPLETH_INTERVAL = 50
 
 url = 'https://lottie.host/bd952b99-002b-42d6-875e-57a7924ce27c/pEXSm4MJxX.json'
 options = dict(loop=True, autoplay=True)
 
-dash.register_page(__name__, path='/', title='Space Exploration | Home')
+dash.register_page(
+    __name__,
+    path='/',
+    image='assets/home.png',
+    title='Space Exploration | Home',
+    description='Explore the world of space exploration through a 3D rotating globe, showcasing '
+                'the number of launches by country since the dawn of the space age'
+)
 
 layout = dmc.Grid(
     [
@@ -78,7 +78,7 @@ layout = dmc.Grid(
                                 'displayModeBar': False,
                                 'scrollZoom': False,
                                 'doubleClick': False,
-                                'staticPlot': True
+                                # 'staticPlot': True
                             }
                         ),
                     ], className='right-container'

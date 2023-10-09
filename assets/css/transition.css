@@ -7,14 +7,3 @@
     opacity: 0;
     transition: opacity 0.5s ease-out;
 }
-
-/* 2EME EXEMPLE D ANIMATION  (il n'est pas utilisé)*/
-.target {
-  font-size: 14px;
-  transition-property: font-size;
-  transition-duration: 4s;
-}
-
-.target:hover {
-  font-size: 36px;
-}

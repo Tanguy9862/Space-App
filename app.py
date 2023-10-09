@@ -11,10 +11,19 @@ logging.basicConfig(filename='app.log', level=logging.ERROR, format='%(asctime)s
 
 app = dash.Dash(
     __name__,
+    title='Space Exploration',
     use_pages=True,
     update_title=False,
     suppress_callback_exceptions=True,
     prevent_initial_callbacks=True,
+    meta_tags=[
+        {"name": "description", "content": "A Dash app focused on space exploration data."},
+        {"name": "keywords", "content": "Space, Launch, Data, Visualization, Dash,"
+                                        "NASA, SpaceX, Rocket, Satellite, Mars, Moon, Astronaut, Space Station, "
+                                        "Orbital, Galaxy, Universe, Telemetry, Spacecraft, Interstellar, Cosmonaut, "
+                                        "Astrobiology, Exoplanet, Space Shuttle, Space Mission, Space Probe, Hubble, "
+                                        "Space Tourism, Space Colony, Zero Gravity, Deep Space"}
+    ],
 )
 
 app.layout = html.Div(
