@@ -1,3 +1,4 @@
+import config
 import dash
 import dash_mantine_components as dmc
 from dash import dcc, callback, Input, Output, ctx, Patch, clientside_callback
@@ -8,10 +9,7 @@ from dash_iconify import DashIconify
 from numpy import isnan
 import plotly.graph_objects as go
 import json
-import datetime as dt
 
-now = dt.datetime.now()
-DATE_UPDATE = now.strftime('%Y-%m-%d %H:%M')
 
 FIG_CONFIG = {
     'displayModeBar': False,
@@ -448,7 +446,7 @@ def show_notifications(_):
             id='notif',
             title='Data Last Updated',
             action='show',
-            message=f'Last updated on {DATE_UPDATE}',
+            message=f'Last updated on {config.DATE_UPDATE}',
             autoClose=False,
             icon=DashIconify(icon='material-symbols:system-update-alt'),
             style={'background-color': 'rgba(0, 0, 0, 0)', 'border': 'none', 'color': 'white'},

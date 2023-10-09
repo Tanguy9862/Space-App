@@ -32,9 +32,9 @@ layout = dmc.Grid(
                             [
                                 dmc.Text(
                                     children=[
-                                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean in faucibus '
-                                        'augue, rutrum placerat mi. Quisque dapibus turpis id sem laoreet, eu viverra '
-                                        'mauris ultrices.'
+                                        "Dive into the fascinating world of space missions, launches, and historical "
+                                        "milestones. Explore real-time data visualizations and get insights into the "
+                                        "future of space exploration."
                                     ],
                                     style={'color': 'white', 'width': '50%'},
                                     align='center',
@@ -137,35 +137,3 @@ clientside_callback(
     State('scatter-geo-fig', 'figure'),
     prevent_initial_call=True
 )
-
-# 0.3 avec 10ms
-# from math import isclose
-#
-# @callback(
-#     Output('scatter-geo-fig', 'figure'),
-#     Input('choropleth-interval', 'n_intervals'),
-#     # Input('up', 'n_clicks'),
-#     State('scatter-geo-fig', 'figure'),
-#     prevent_initial_call=True
-# )
-# def update_rotation(_, figure):
-#     rotation_lon = figure['layout']['geo']['projection']['rotation']['lon']
-#     rotation_lat = figure['layout']['geo']['projection']['rotation']['lat']
-#     # print(f'Rot lon : {rotation_lon} | Rot lat : {rotation_lat}')
-#
-#     if rotation_lon <= -180:
-#         rotation_lon = 180
-#     if rotation_lon >= 180:
-#         rotation_lon = -180
-#
-#     if rotation_lat >= 90:
-#         rotation_lat = 90
-#     elif rotation_lat <= -90:
-#         rotation_lat = -90
-#
-#     if isclose(0, rotation_lat, abs_tol=0.01):
-#         rotation_lat = 0
-#
-#     return fig.update_geos(projection_rotation_lon=rotation_lon + 1, projection_rotation_lat=rotation_lat)
-
-# 0.2
