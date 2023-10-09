@@ -9,6 +9,7 @@ from dash_iconify import DashIconify
 from numpy import isnan
 import plotly.graph_objects as go
 import json
+import datetime as dt
 
 
 FIG_CONFIG = {
@@ -17,7 +18,7 @@ FIG_CONFIG = {
     'showTips': False
 }
 
-with open('data/next_launch_data.json', 'r', encoding='utf-8') as json_file:
+with open('utils/data/next_launch_data.json', 'r', encoding='utf-8') as json_file:
     next_launch_data = json.load(json_file)
 
 dash.register_page(

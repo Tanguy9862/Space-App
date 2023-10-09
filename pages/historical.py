@@ -21,7 +21,7 @@ dash.register_page(
                 'format. Each point represents a significant event, complete with descriptions and images'
 )
 
-with open('data/historical_data.json', 'r', encoding='utf-8') as json_file:
+with open('utils/data/historical_data.json', 'r', encoding='utf-8') as json_file:
     historical_data = json.load(json_file)
 
 all_years = [int(item['DATE'].split(',')[-1].strip()) for item in historical_data] + [1950]

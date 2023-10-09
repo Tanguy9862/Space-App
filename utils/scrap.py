@@ -1,16 +1,16 @@
 import datetime as dt
 import logging
-import config
+import sys
 from wikipedia_space_scraper.scraper import scrape_wikipedia_data
 from next_launch_scraper.scraper import scrape_next_launch_data
 from past_launches_scraper.scraper import scrape_past_launches_data
+sys.path.append('..')
+import config
 
 
 def main():
     config.DATE_UPDATE = dt.datetime.now().strftime('%Y-%m-%d %H:%M')
     logging.basicConfig(filename='app.log', level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
-
-    # fn à faire + boucle
 
     try:
         scrape_wikipedia_data()
