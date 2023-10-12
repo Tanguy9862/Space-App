@@ -1,3 +1,5 @@
+Flask
+google_cloud_storage
 gunicorn
 git+https://github.com/Tanguy9862/Wikipedia_Space_Scraper.git
 git+https://github.com/Tanguy9862/Next-Launch-Scraper.git

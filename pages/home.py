@@ -1,9 +1,10 @@
 import dash
-from dash import dcc, Input, Output, State, clientside_callback
-import dash_mantine_components as dmc
+import pandas as pd
+from dash import dcc, Input, Output, State, callback, clientside_callback
 from dash_iconify import DashIconify
+from utils.choropleth import create_choropleth_chart
+import dash_mantine_components as dmc
 import dash_extensions as de
-from utils.choropleth import fig
 
 CHOROPLETH_INTERVAL = 50
 
@@ -68,28 +69,50 @@ layout = dmc.Grid(
         dmc.Col(
             [
                 dmc.Center(
-                    [
-                        dcc.Graph(
-                            id='scatter-geo-fig',
-                            className='graph-container',
-                            figure=fig,
-                            responsive=True,
-                            config={
-                                'displayModeBar': False,
-                                'scrollZoom': False,
-                                'doubleClick': False,
-                                # 'staticPlot': True
-                            }
+                    className='right-container',
+                    id='right-container',
+                    children=[
+                        dmc.Loader(
+                            color="blue",
+                            size="md",
+                            variant="oval"
                         ),
-                    ], className='right-container'
+                    ]
                 ),
             ], md=12, lg=4
         ),
-        dcc.Interval(id='choropleth-interval', interval=CHOROPLETH_INTERVAL),
     ],
     id='home-grid',
     className='hide',
 )
+
+
+@callback(
+    Output('right-container', 'children'),
+    Input('past-launches-data', 'data'),
+)
+def create_total_launches_fig(past_launches_data):
+    past_launches_data_df = pd.DataFrame(past_launches_data)
+    df_launches_per_country = past_launches_data_df.groupby(['country_code', 'Country']).size().reset_index().rename(
+        columns={0: 'Total Number of Launches'}
+    )
+
+    return [
+        dcc.Graph(
+            id='choropleth-fig',
+            className='graph-container',
+            figure=create_choropleth_chart(df_launches_per_country),
+            responsive=True,
+            config={
+                'displayModeBar': False,
+                'scrollZoom': False,
+                'doubleClick': False,
+                # 'staticPlot': True
+            }
+        ),
+        dcc.Interval(id='choropleth-interval', interval=CHOROPLETH_INTERVAL)
+    ]
+
 
 clientside_callback(
     """
@@ -132,8 +155,8 @@ clientside_callback(
         return updatedFigure;
     }
     """,
-    Output('scatter-geo-fig', 'figure'),
+    Output('choropleth-fig', 'figure'),
     Input('choropleth-interval', 'n_intervals'),
-    State('scatter-geo-fig', 'figure'),
+    State('choropleth-fig', 'figure'),
     prevent_initial_call=True
 )

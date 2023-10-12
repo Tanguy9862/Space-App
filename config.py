@@ -1,1 +1,0 @@
-DATE_UPDATE = None

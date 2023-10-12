@@ -1,16 +1,16 @@
-import config
 import dash
 import dash_mantine_components as dmc
-from dash import dcc, callback, Input, Output, ctx, Patch, clientside_callback
-from utils.data_processing import df
-from utils.insights_processing import fig_launch_per_year, fig_monthly, df_best_month_launch, get_launch_per_month, \
-    sunburst_fig, df_sunburst, filter_sunburst_year, plot_sunburst
+import pandas as pd
+from dash import dcc, callback, Input, Output, ctx, Patch, clientside_callback, State
+from dash.exceptions import PreventUpdate
+from plotly.graph_objs import Figure
+from utils.cloud_storage import read_from_gcs
+from utils.insights_processing import plot_launch_per_year, create_df_best_month_launches, create_monthly_bar_chart, \
+    create_sunburst_chart
 from dash_iconify import DashIconify
 from numpy import isnan
 import plotly.graph_objects as go
-import json
 import datetime as dt
-
 
 FIG_CONFIG = {
     'displayModeBar': False,
@@ -18,8 +18,7 @@ FIG_CONFIG = {
     'showTips': False
 }
 
-with open('utils/data/next_launch_data.json', 'r', encoding='utf-8') as json_file:
-    next_launch_data = json.load(json_file)
+HIDE = {'display': 'none'}
 
 dash.register_page(
     __name__,
@@ -30,7 +29,7 @@ dash.register_page(
 )
 
 
-def right_content_next_launch(rocket_name, mission_description, live_link):
+def right_content_on_launch(rocket_name, mission_description, live_link):
     return [
         dmc.Title(rocket_name, order=3, color='white', align='center'),
         dmc.Spoiler(
@@ -150,42 +149,7 @@ layout = dmc.NotificationsProvider(
                     [
                         dmc.Container(
                             [
-                                dmc.Group(
-                                    [
-                                        *[
-                                            dmc.Stack(
-                                                [
-                                                    dmc.Text(key, transform='uppercase',
-                                                             color='rgba(255, 255, 255, 0.4)',
-                                                             style={'font-size': '1rem'}),
-                                                    dmc.Title(value, color='white', order=4)
-                                                ],
-                                                spacing=0
-                                            )
-                                            for key, value in next_launch_data[0].items() if
-                                            key in {'NEXT LAUNCH', 'ORGANISATION',
-                                                    'ROCKET'}
-                                        ],
-                                        *[
-                                            dmc.Tooltip(
-                                                [
-                                                    dmc.ActionIcon(
-                                                        DashIconify(icon='ri:more-fill', color='white'),
-                                                        id='next-launch-btn',
-                                                        variant='outline',
-                                                        radius='lg'
-                                                    )
-                                                ],
-                                                label='View upcoming rocket launch details',
-                                                withArrow=True,
-                                                transition='fade'
-                                            )
-
-                                        ]
-                                    ],
-                                    position='apart',
-                                    mb='lg'
-                                ),
+                                dmc.Container(id='next-launch-container', children=[], px=0),
                                 dmc.Divider(labelPosition='center', label='Launches over time', color='white', mt=35,
                                             mb=20),
                                 dmc.Group(
@@ -213,7 +177,7 @@ layout = dmc.NotificationsProvider(
                                                     [
                                                         DashIconify(icon='ic:baseline-restore', width=20),
                                                     ],
-                                                    id='monthly-restore',
+                                                    id='restore-data',
                                                     variant='outline',
                                                     size="lg",
                                                     radius='lg'
@@ -227,11 +191,23 @@ layout = dmc.NotificationsProvider(
                                     mt=15,
                                     position='center'
                                 ),
-                                dcc.Graph(
-                                    id='launches-fig',
-                                    figure=fig_launch_per_year,
-                                    config=FIG_CONFIG
-                                ),
+                                dmc.Container(
+                                    id='launches-fig-container',
+                                    px=0,
+                                    children=[
+                                        dmc.Center(
+                                            [
+                                                dmc.Loader(
+                                                    color="blue",
+                                                    size="md",
+                                                    variant="oval",
+                                                    mt=250
+                                                ),
+                                            ]
+                                        ),
+                                        dcc.Graph(id='launches-fig', style=HIDE)
+                                    ]
+                                )
                             ],
                             px=0,
                             style={
@@ -245,19 +221,19 @@ layout = dmc.NotificationsProvider(
                                     [
                                         dmc.Col(
                                             [
-                                                dcc.Graph(id='monthly-launches-fig', figure=fig_monthly,
-                                                          config=FIG_CONFIG)
+                                                dcc.Graph(id='bar-fig', style=HIDE)
                                             ],
                                             lg=6, md=12
                                         ),
                                         dmc.Col(
                                             [
-                                                dcc.Graph(id='sunburst-fig', figure=sunburst_fig, config=FIG_CONFIG)
+                                                dcc.Graph(id='sunburst-fig', style=HIDE)
                                             ],
                                             offsetLg=2,
                                             lg=4, md=12
                                         )
                                     ],
+                                    id='secondary-figures-container',
                                     mt=35
                                 )
 
@@ -298,19 +274,139 @@ layout = dmc.NotificationsProvider(
 
 
 @callback(
+    Output('launches-fig-container', 'children'),
+    Input('past-launches-data', 'data'),
+)
+def create_launches_fig(past_launch_data):
+    """
+    Plot year launches
+    """
+    if not past_launch_data:
+        return dash.no_update
+
+    df = pd.DataFrame(past_launch_data)
+    fig_launch_per_year = plot_launch_per_year(df)
+
+    return [
+        dcc.Graph(
+            id='launches-fig',
+            config=FIG_CONFIG,
+            figure=fig_launch_per_year
+        )
+    ]
+
+
+@callback(
+    Output('launches-fig', 'figure'),
+    Input('failure', 'n_clicks'),
+    Input('success', 'n_clicks'),
+    State('launches-fig', 'figure'),
+    State('past-launches-data', 'data'),
+    prevent_initial_call=True
+)
+def launches_add_lines(_1, _2, fig, data):
+    """
+    Add lines successes and fails on year launches plot
+    """
+    fig_launch_per_year = Figure(fig)
+    df_past_launches = pd.DataFrame(data)
+    input_id = ctx.triggered_id and ctx.triggered_id.title()
+
+    if input_id:
+        index = 0 if input_id == 'Failure' else 1
+        n = ctx.args_grouping[index]['value']
+        if n % 2:
+            status_df = df_past_launches.groupby(["YEAR_LAUNCH", "Mission_Status_Binary"]).size().reset_index(
+                name='Total')
+            status_df = status_df.query('Mission_Status_Binary == @input_id')
+
+            fig_launch_per_year.add_trace(
+                go.Scatter(
+                    x=status_df['YEAR_LAUNCH'],
+                    y=status_df['Total'],
+                    mode='lines',
+                    line=dict(color='#00ff9f' if index else '#FB7089', dash='dot'),
+                    showlegend=False,
+                    name=input_id
+                )
+            )
+        else:
+            fig_launch_per_year.data = tuple(trace for trace in fig_launch_per_year.data if trace['name'] != input_id)
+
+        return fig_launch_per_year
+
+    fig_launch_per_year.data = fig_launch_per_year.data[:1]
+    return fig_launch_per_year
+
+
+@callback(
+    Output('next-launch-container', 'children'),
+    Input('next-launch-data', 'data')
+)
+def update_next_launch_container(next_launch_data):
+    """
+    Show details on the right side about next launch
+    """
+    return [
+        dmc.Group(
+            [
+                *[
+                    dmc.Stack(
+                        [
+                            dmc.Text(key, transform='uppercase',
+                                     color='rgba(255, 255, 255, 0.4)',
+                                     style={'font-size': '1rem'}),
+                            dmc.Title(value, color='white', order=4)
+                        ],
+                        spacing=0
+                    )
+                    for key, value in next_launch_data[0].items() if
+                    key in {'NEXT LAUNCH', 'ORGANISATION',
+                            'ROCKET'}
+                ],
+                *[
+                    dmc.Tooltip(
+                        [
+                            dmc.ActionIcon(
+                                DashIconify(icon='ri:more-fill', color='white'),
+                                id='next-launch-btn',
+                                variant='outline',
+                                radius='lg'
+                            )
+                        ],
+                        label='View upcoming rocket launch details',
+                        withArrow=True,
+                        transition='fade'
+                    )
+
+                ]
+            ],
+            position='apart',
+            mb='lg'
+        )
+    ]
+
+
+@callback(
     Output('right-content', 'children'),
     Output('right-content', 'className'),
     Input('launches-fig', 'clickData'),
     Input('next-launch-btn', 'n_clicks'),
+    State('next-launch-data', 'data'),
+    State('past-launches-data', 'data'),
     prevent_initial_call=True
 )
-def update_right_content(data, _):
+def update_right_content(click_data, _, next_launch_data, past_launches_data):
+    """
+    Update right content based on the input triggered (data about past launches or about next launch)
+    """
     input_id = ctx.triggered_id
 
-    if input_id == 'launches-fig':
+    if input_id == 'launches-fig' and click_data:
+        past_launches_data_df = pd.DataFrame(past_launches_data)
         general_data = dict()
-        year = data['points'][0]['x']
-        df_year = df.query('YEAR_LAUNCH == @year').copy()
+        year = click_data['points'][0]['x']
+        df_year = past_launches_data_df.query('YEAR_LAUNCH == @year').copy()
         general_data['Avg'] = [
             'Average price per rocket',
             f'${df_year["Price"].mean().round(1)}M' if not isnan(df_year["Price"].mean()) else "-"
@@ -354,7 +450,7 @@ def update_right_content(data, _):
             next_launch_general,
             title=organisation,
             image=branch['IMAGE'],
-            add_content_fn=right_content_next_launch,
+            add_content_fn=right_content_on_launch,
             rocket_name=branch['ROCKET'],
             mission_description=branch['MISSION DETAIL'],
             live_link=branch['VIDEO']
@@ -374,72 +470,81 @@ clientside_callback(
 
 
 @callback(
-    Output('launches-fig', 'figure'),
-    Input('failure', 'n_clicks'),
-    Input('success', 'n_clicks'),
+    Output('secondary-figures-container', 'children'),
+    Input('past-launches-data', 'data')
 )
-def update_launch_year_plot(_1, _2):
-    input_id = ctx.triggered_id and ctx.triggered_id.title()
+def create_secondaries_fig(past_launches_data):
+    """
+    Plot monthly launches(bar chart) and sunburst of organisation/companies/successes vs. fails
+    """
+    if not past_launches_data:
+        return dash.no_update
 
-    if input_id:
-        index = 0 if input_id == 'Failure' else 1
-        n = ctx.args_grouping[index]['value']
-        if n % 2:
-            status_df = df.groupby(["YEAR_LAUNCH", "Mission_Status_Binary"]).size().reset_index(name='Total')
-            status_df = status_df.query('Mission_Status_Binary == @input_id')
+    past_launches_data_df = pd.DataFrame(past_launches_data)
 
-            fig_launch_per_year.add_trace(
-                go.Scatter(
-                    x=status_df['YEAR_LAUNCH'],
-                    y=status_df['Total'],
-                    mode='lines',
-                    line=dict(color='#00ff9f' if index else '#FB7089', dash='dot'),
-                    showlegend=False,
-                    name=input_id
+    return [
+        dmc.Col(
+            [
+                dcc.Graph(
+                    id='bar-fig',
+                    figure=create_monthly_bar_chart(create_df_best_month_launches(past_launches_data_df)),
+                    config=FIG_CONFIG
                 )
-            )
-        else:
-            fig_launch_per_year.data = tuple(trace for trace in fig_launch_per_year.data if trace['name'] != input_id)
-
-        return fig_launch_per_year
-
-    fig_launch_per_year.data = fig_launch_per_year.data[:1]
-
-    return fig_launch_per_year
+            ],
+            lg=6, md=12
+        ),
+        dmc.Col(
+            [
+                dcc.Graph(id='sunburst-fig', figure=create_sunburst_chart(past_launches_data_df), config=FIG_CONFIG)
+            ],
+            offsetLg=2,
+            lg=4, md=12
+        )
+    ]
 
 
 @callback(
-    Output('monthly-launches-fig', 'figure'),
+    Output('bar-fig', 'figure'),
     Output('sunburst-fig', 'figure'),
     Input('launches-fig', 'clickData'),
-    Input('monthly-restore', 'n_clicks'),
+    Input('restore-data', 'n_clicks'),
+    State('past-launches-data', 'data'),
     prevent_initial_call=True
 )
-def update_monthly_plot(data, _):
+def update_secondary_figs(click_data, _, past_launches_data):
+    """
+    Update bar chart and sunburst chart based on year input OR restore input
+    """
     input_id = ctx.triggered_id
 
-    if input_id == 'launches-fig':
-        year = data['points'][0]['x']
-        filtered_monthly_df = get_launch_per_month(df_best_month_launch, year)
+    if input_id == 'launches-fig' and click_data:
+        past_launches_data_df = pd.DataFrame(past_launches_data)
+        year = click_data['points'][0]['x']
+        filtered_monthly_df = create_df_best_month_launches(past_launches_data_df, year)
 
-        patched_monthly_figure = Patch()
-        patched_monthly_figure['data'][0]['x'] = filtered_monthly_df['TOTAL']
-        patched_monthly_figure['data'][0]['y'] = filtered_monthly_df['MONTH']
-        patched_monthly_figure['data'][0]['marker']['color'] = filtered_monthly_df['BAR_COLOR']
-        patched_monthly_figure['data'][0]['marker']['line']['color'] = filtered_monthly_df['BAR_COLOR']
-        # patched_monthly_figure['layout']['yaxis']['ticksuffix'] = f' (in {year})'
+        # Update bar chart:
+        patched_bar_fig = Patch()
+        patched_bar_fig['data'][0]['x'] = filtered_monthly_df['TOTAL']
+        patched_bar_fig['data'][0]['y'] = filtered_monthly_df['MONTH']
+        patched_bar_fig['data'][0]['marker']['color'] = filtered_monthly_df['BAR_COLOR']
+        patched_bar_fig['data'][0]['marker']['line']['color'] = filtered_monthly_df['BAR_COLOR']
 
-        filtered_sunburst_df = filter_sunburst_year(df_sunburst, year)
-        updated_sunburst = plot_sunburst(filtered_sunburst_df)
+        # Update sunburst chart:
+        sunburst_fig = create_sunburst_chart(past_launches_data_df, year)
 
-        return patched_monthly_figure, updated_sunburst
-    else:
-        return fig_monthly, sunburst_fig
+        return patched_bar_fig, sunburst_fig
+
+    elif input_id == 'restore-data':
+        past_launches_data_df = pd.DataFrame(past_launches_data)
+        return create_monthly_bar_chart(create_df_best_month_launches(past_launches_data_df)), \
+            create_sunburst_chart(past_launches_data_df)
+
+    raise PreventUpdate
 
 
 @callback(
     Output('notifications-container', 'children'),
-    Input('notifications-container', 'children')
+    Input('notifications-container', 'id'),
 )
 def show_notifications(_):
     return [
@@ -447,7 +552,7 @@ def show_notifications(_):
             id='notif',
             title='Data Last Updated',
             action='show',
-            message=f'Last updated on {config.DATE_UPDATE}',
+            message=f'Last updated on {read_from_gcs("date_update.txt").download_as_text()}',
             autoClose=False,
             icon=DashIconify(icon='material-symbols:system-update-alt'),
             style={'background-color': 'rgba(0, 0, 0, 0)', 'border': 'none', 'color': 'white'},

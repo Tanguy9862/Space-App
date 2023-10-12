@@ -8,7 +8,6 @@ from utils.cytoscape import nodes_big_dipper, edges_big_dipper, nodes_orion, edg
 from random import sample
 import json
 import datetime
-import os
 
 LOTTIE_URL = 'https://lottie.host/bd952b99-002b-42d6-875e-57a7924ce27c/pEXSm4MJxX.json'
 LOTTIE_OPTIONS = dict(loop=True, autoplay=True)
@@ -21,7 +20,7 @@ dash.register_page(
                 'format. Each point represents a significant event, complete with descriptions and images'
 )
 
-with open('utils/data/historical_data.json', 'r', encoding='utf-8') as json_file:
+with open('data/historical_data.json', 'r', encoding='utf-8') as json_file:
     historical_data = json.load(json_file)
 
 all_years = [int(item['DATE'].split(',')[-1].strip()) for item in historical_data] + [1950]
@@ -42,10 +41,10 @@ def right_content(*, date, country, description, image):
                     withPlaceholder=True,
                     #style={'border-radius': '50%'},
                     styles={
-                        'placeholder': {'background-color': '#000000'},
+                        # 'placeholder': {'background-color': '#000000'},
                         'image': {'border-radius': '50%', 'object-fit': 'cover'}
                     },
-                ),
+                ) if image else None
             ],
             px=0,
         ),
@@ -136,9 +135,6 @@ layout = dmc.Grid(
     Input('range-historical-data', 'data')
 )
 def update_cytoscape(_, year_range):
-    import pprint
-    pp = pprint.PrettyPrinter()
-    pp.pprint(dash.page_registry.values())
     nodes = nodes_big_dipper + nodes_orion + nodes_scorpion
     edges = edges_big_dipper + edges_orion + edges_scorpion
 
