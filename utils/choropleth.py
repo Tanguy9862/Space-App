@@ -1,10 +1,7 @@
 import plotly.express as px
-# from utils.data_processing import df
-#
-# = df.groupby(['country_code', 'Country']).size().reset_index().rename(columns={0: 'Total Number of Launches'})
 
 
-#FIGURE:
+# FIGURE:
 def create_choropleth_chart(df_launches_per_country):
     fig = px.choropleth(
         df_launches_per_country,

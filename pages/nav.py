@@ -71,7 +71,7 @@ def navbar():
     State('full-modal', 'opened'),
     prevent_initial_call=True
 )
-def toggle_modal(n, opened):
+def toggle_modal(_, opened):
     return not opened
 
 

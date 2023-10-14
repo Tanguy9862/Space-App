@@ -1,16 +1,16 @@
 import dash
 import dash_mantine_components as dmc
+import datetime as dt
 import pandas as pd
+import plotly.graph_objects as go
 from dash import dcc, callback, Input, Output, ctx, Patch, clientside_callback, State
 from dash.exceptions import PreventUpdate
+from dash_iconify import DashIconify
+from numpy import isnan
 from plotly.graph_objs import Figure
 from utils.cloud_storage import read_from_gcs
 from utils.insights_processing import plot_launch_per_year, create_df_best_month_launches, create_monthly_bar_chart, \
     create_sunburst_chart
-from dash_iconify import DashIconify
-from numpy import isnan
-import plotly.graph_objects as go
-import datetime as dt
 
 FIG_CONFIG = {
     'displayModeBar': False,
@@ -22,7 +22,7 @@ HIDE = {'display': 'none'}
 
 dash.register_page(
     __name__,
-    image='assets/insights.png',
+    image='insights.png',
     title='Space Exploration | Insights',
     description='Get real-time analytics on space launches. Interactive dashboards allow you to filter by year, '
                 'providing insights into launch success rates, most active organizations, and more'
@@ -132,6 +132,17 @@ def right_content(general_data, title, add_content_fn, image=None, *args, **kwar
             ],
             mt=25,
             position='center'
+        )
+    ]
+
+
+def add_loading_overlay(elements):
+    return [
+        dmc.LoadingOverlay(
+            children=elements,
+            loaderProps={'color': 'white', 'variant': 'dots'},
+            overlayColor='#0B0653',
+            radius=5,
         )
     ]
 
@@ -249,13 +260,14 @@ layout = dmc.NotificationsProvider(
                     lg=8,
                 ),
                 dmc.Col(
-                    [
-                        dmc.Stack(
-                            id='right-content',
-                            align='center',
-                            mb=25
-                        )
-                    ],
+                    add_loading_overlay(
+                        [
+                            dmc.Stack(
+                                id='right-content',
+                                align='center',
+                            )
+                        ]
+                    ),
                     offsetLg=1,
                     offsetMd=0,
                     mt=70,
@@ -287,13 +299,15 @@ def create_launches_fig(past_launch_data):
     df = pd.DataFrame(past_launch_data)
     fig_launch_per_year = plot_launch_per_year(df)
 
-    return [
-        dcc.Graph(
-            id='launches-fig',
-            config=FIG_CONFIG,
-            figure=fig_launch_per_year
-        )
-    ]
+    return add_loading_overlay(
+        [
+            dcc.Graph(
+                id='launches-fig',
+                config=FIG_CONFIG,
+                figure=fig_launch_per_year,
+            )
+        ]
+    )
 
 
 @callback(
@@ -457,18 +471,6 @@ def update_right_content(click_data, _, next_launch_data, past_launches_data):
         ), 'hide'
 
 
-clientside_callback(
-    """
-    function(className) {
-        return "fade-in";
-    }
-    """,
-    Output('right-content', 'className', allow_duplicate=True),
-    Input('right-content', 'className'),
-    prevent_initial_call=True
-)
-
-
 @callback(
     Output('secondary-figures-container', 'children'),
     Input('past-launches-data', 'data')
@@ -484,21 +486,23 @@ def create_secondaries_fig(past_launches_data):
 
     return [
         dmc.Col(
-            [
+            add_loading_overlay(
                 dcc.Graph(
                     id='bar-fig',
                     figure=create_monthly_bar_chart(create_df_best_month_launches(past_launches_data_df)),
                     config=FIG_CONFIG
                 )
-            ],
-            lg=6, md=12
+            ),
+            lg=6,
+            md=12
         ),
         dmc.Col(
-            [
+            add_loading_overlay(
                 dcc.Graph(id='sunburst-fig', figure=create_sunburst_chart(past_launches_data_df), config=FIG_CONFIG)
-            ],
+            ),
             offsetLg=2,
-            lg=4, md=12
+            lg=4,
+            md=12
         )
     ]
 
@@ -563,3 +567,15 @@ def show_notifications(_):
 
         ),
     ]
+
+
+clientside_callback(
+    """
+    function(className) {
+        return "fade-in";
+    }
+    """,
+    Output('right-content', 'className', allow_duplicate=True),
+    Input('right-content', 'className'),
+    prevent_initial_call=True
+)

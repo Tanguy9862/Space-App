@@ -14,7 +14,7 @@ options = dict(loop=True, autoplay=True)
 dash.register_page(
     __name__,
     path='/',
-    image='assets/home.png',
+    image='home.png',
     title='Space Exploration | Home',
     description='Explore the world of space exploration through a 3D rotating globe, showcasing '
                 'the number of launches by country since the dawn of the space age'

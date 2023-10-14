@@ -134,7 +134,7 @@ constellation = cyto.Cytoscape(
         {
             'selector': 'node:selected',
             'style': {
-                'background-color': '#D291DF', # #00f9ff
+                'background-color': '#D291DF',
                 'color': '#D291DF'
             }
         }

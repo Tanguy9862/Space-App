@@ -2,9 +2,9 @@ import pandas as pd
 from iso3166 import countries
 from numpy import where
 
-# DATA:
-pd.options.display.float_format = '{:,.2f}'.format
-pd.set_option('display.max_columns', None)
+# PANDAS CONFIGURATION:
+# pd.options.display.float_format = '{:,.2f}'.format
+# pd.set_option('display.max_columns', None)
 
 
 def clean_past_launches_data(df):

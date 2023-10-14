@@ -1,5 +1,5 @@
 import dash
-from dash import dcc, callback, Input, Output, ctx, no_update, clientside_callback
+from dash import dcc, callback, Input, Output, ctx, no_update
 import dash_mantine_components as dmc
 import dash_extensions as de
 from dash_iconify import DashIconify
@@ -14,7 +14,7 @@ LOTTIE_OPTIONS = dict(loop=True, autoplay=True)
 
 dash.register_page(
     __name__,
-    image='assets/historical.png',
+    image='historical.png',
     title='Space Exploration | Historical',
     description='Dive into the key milestones of space exploration, presented in a unique cytoscape constellation '
                 'format. Each point represents a significant event, complete with descriptions and images'
