@@ -4,7 +4,7 @@
 
 Space Exploration is a Python-based Dash application designed to provide real-time information on space exploration. The application is deployed on Google Cloud Run and updates its data daily through web scraping techniques. It offers a comprehensive view of space activities, from historical milestones to upcoming launches. The design is fully responsive, adapting to various screen sizes.
 
-The application features automated data updates (every 3 hours) using Google Cloud Storage and Google Cloud Scheduler. A Flask server in `scrap.py` triggers the scraping scripts, ensuring that the data is always up-to-date.
+The application features automated data updates (every 6 hours) using Google Cloud Storage and Google Cloud Scheduler. A Flask server in `scrap.py` triggers the scraping scripts, ensuring that the data is always up-to-date.
 
 You can access the live version of the application [here](https://spacexploration-2t723npiha-uc.a.run.app/).
 
