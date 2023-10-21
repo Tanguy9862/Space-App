@@ -142,7 +142,8 @@ def add_loading_overlay(elements):
             children=elements,
             loaderProps={'color': 'white', 'variant': 'dots'},
             overlayColor='#0B0653',
-            radius=5,
+            overlayOpacity=0.4,
+            radius=6,
         )
     ]
 
@@ -293,6 +294,7 @@ def create_launches_fig(past_launch_data):
     """
     Plot year launches
     """
+
     if not past_launch_data:
         return dash.no_update
 
