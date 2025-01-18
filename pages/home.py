@@ -1,6 +1,6 @@
 import dash
 import pandas as pd
-from dash import dcc, Input, Output, State, callback, clientside_callback
+from dash import dcc, html, Input, Output, State, callback, clientside_callback
 from dash_iconify import DashIconify
 from utils.choropleth import create_choropleth_chart
 import dash_mantine_components as dmc
@@ -79,6 +79,27 @@ layout = dmc.Grid(
                         ),
                     ]
                 ),
+                # dmc.Center(
+                #     [
+                #         dmc.Alert(
+                #             children=[
+                #                 "Exploring my Dash app? I'm looking for a data science internship! Connect "
+                #                 "with me on ",
+                #                 dmc.Anchor('LinkedIn', href='https://www.linkedin.com/in/tanguy-surowiec'),
+                #                 " for details.",
+                #             ],
+                #             title='🌟 Data Science Internship Seeker (Mar-Aug 2024) 🌟',
+                #             variant='filled',
+                #             radius='md',
+                #             withCloseButton=True,
+                #             style={
+                #                 'background-color': 'rgba(0,0,0,0.3)',
+                #                 'color': 'white',
+                #                 'position': 'fixed',
+                #             },
+                #         ),
+                #     ]
+                # )
             ], md=12, lg=4
         ),
     ],

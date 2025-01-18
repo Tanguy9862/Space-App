@@ -3,14 +3,14 @@ import dash_mantine_components as dmc
 import datetime as dt
 import pandas as pd
 import plotly.graph_objects as go
-from dash import dcc, callback, Input, Output, ctx, Patch, clientside_callback, State
+from dash import dcc, html, callback, Input, Output, ctx, Patch, clientside_callback, State
 from dash.exceptions import PreventUpdate
 from dash_iconify import DashIconify
 from numpy import isnan
 from plotly.graph_objs import Figure
-from utils.cloud_storage import read_from_gcs
 from utils.insights_processing import plot_launch_per_year, create_df_best_month_launches, create_monthly_bar_chart, \
     create_sunburst_chart
+from utils.helpers import create_notification
 
 FIG_CONFIG = {
     'displayModeBar': False,
@@ -157,6 +157,7 @@ layout = dmc.NotificationsProvider(
     [
         dmc.Grid(
             [
+                html.Div(id='insights-notifications-container'),
                 dmc.Col(
                     [
                         dmc.Container(
@@ -275,11 +276,6 @@ layout = dmc.NotificationsProvider(
                     md=12,
                     lg=3
                 ),
-                dmc.Col(
-                    [
-                        dmc.Container(id='notifications-container')
-                    ]
-                )
             ],
         )
     ]
@@ -440,6 +436,9 @@ def update_right_content(click_data, _, next_launch_data, past_launches_data):
             {'Detail': 'count', 'Image_Link': 'first'}).reset_index()
         most_used_model = most_used_model.sort_values('Detail', ascending=False).iloc[0]
 
+        pd.set_option('display.max_colwidth', None)
+        # print(most_used_model)
+
         return right_content(
             general_data,
             title=year,
@@ -549,26 +548,51 @@ def update_secondary_figs(click_data, _, past_launches_data):
 
 
 @callback(
-    Output('notifications-container', 'children'),
-    Input('notifications-container', 'id'),
+    Output('insights-notifications-container', 'children'),
+    Input('next-launch-last-update', 'data'),
+    Input('past-launches-last-update', 'data'),
+    prevent_initial_call=True
 )
-def show_notifications(_):
-    return [
-        dmc.Notification(
-            id='notif',
-            title='Data Last Updated',
-            action='show',
-            message=f'Last updated on {read_from_gcs("date_update.txt").download_as_text()}',
-            autoClose=False,
-            icon=DashIconify(icon='material-symbols:system-update-alt'),
-            style={'background-color': 'rgba(0, 0, 0, 0)', 'border': 'none', 'color': 'white'},
-            styles={
-                'title': {'color': 'white'},
-                'description': {'color': '#E6E6E6'}
-            }
+def update_insights_notifications(next_launch_update_date, past_launches_update_date):
 
-        ),
-    ]
+    next_launch_notification = create_notification(
+        page=f'{__name__}-next-launch',
+        date=next_launch_update_date,
+        data_type='Next Launch',
+        freq='every 3 hours',
+    )
+
+    past_launches_notification = create_notification(
+        page=f'{__name__}-past-launches',
+        date=past_launches_update_date,
+        data_type='Past Launches',
+        freq='every 3 hours',
+    )
+
+    return [next_launch_notification, past_launches_notification]
+
+
+
+# @callback(
+#     Output('notifications-container', 'children'),
+#     Input('notifications-container', 'id'),
+# )
+# def show_notifications(_):
+#     return [
+#         dmc.Notification(
+#             id='notif',
+#             title='Data Last Updated',
+#             action='show',
+#             message=f'Last updated on {read_from_gcs("date_update.txt").download_as_text()}',
+#             autoClose=False,
+#             icon=DashIconify(icon='material-symbols:system-update-alt'),
+#             style={'background-color': 'rgba(0, 0, 0, 0)', 'border': 'none', 'color': 'white'},
+#             styles={
+#                 'title': {'color': 'white'},
+#                 'description': {'color': '#E6E6E6'}
+#             }
+#         ),
+#     ]
 
 
 clientside_callback(

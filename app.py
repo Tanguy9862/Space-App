@@ -1,11 +1,11 @@
 import dash
-import json
 import pandas as pd
+
 from dash import html, dcc, Output, Input, callback
+
 from assets.footer import footer
 from pages.nav import navbar
-from utils.cloud_storage import read_from_gcs
-from io import StringIO
+from utils.loading_data import load_data
 
 app = dash.Dash(
     __name__,
@@ -32,27 +32,39 @@ app.layout = html.Div(
         footer,
         dcc.Store('past-launches-data'),
         dcc.Store('next-launch-data'),
-        dcc.Store('last-update'),
+        dcc.Store(id='next-launch-last-update'),
+        dcc.Store(id='past-launches-last-update'),
     ]
 )
 
 
 @callback(
+    Output('historical-data', 'data'),
+    Output('historical-facts-last-update', 'data'),
+    Input('historical-data', 'id'),
+)
+def load_historical_facts_data(_):
+    return load_data('HISTORICAL_FACTS_FILENAME', 'json')
+
+
+@callback(
     Output('past-launches-data', 'data'),
+    Output('past-launches-last-update', 'data'),
     Input('past-launches-data', 'id'),
 )
 def load_past_launches_data(_):
-    df = pd.read_csv(StringIO(read_from_gcs('past_launches_data.csv').download_as_text()))
-    return df.to_dict('records')
+    df, last_update = load_data('PAST_LAUNCHES_FILENAME', 'csv')
+    return df.to_dict('records'), last_update
 
 
 @callback(
     Output('next-launch-data', 'data'),
+    Output('next-launch-last-update', 'data'),
     Input('next-launch-data', 'id'),
 )
 def load_next_launch_data(_):
-    return json.loads(read_from_gcs('next_launch_data.json').download_as_text())
+    return load_data('NEXT_LAUNCH_FILENAME', 'json')
 
 
 if __name__ == "__main__":
-    app.run_server(debug=False)
+    app.run_server(debug=True)

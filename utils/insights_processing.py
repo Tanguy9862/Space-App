@@ -1,7 +1,6 @@
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from past_launches_scraper.scraper import convert_to_date
 
 FORMATS = ["%a %b %d, %Y", "%a %b %d, %Y %H:%M UTC", "%Y-%m-%d", "%Y-%m-%d %H:%M:%S"]
 BG_TRANSPARENT = 'rgba(0,0,0,0)'
@@ -13,6 +12,16 @@ HOVERLABEL_TEMPLATE = dict(
         color='white'
     )
 )
+
+
+def convert_to_date(date_str):
+    for date_format in FORMATS:
+        try:
+            return pd.to_datetime(date_str, format=date_format)
+        except ValueError:
+            pass
+    return None
+
 
 
 # LINE PLOT OF LAUNCHES OVER YEAR
