@@ -1,0 +1,8 @@
+version: 1.0
+runtime: python:3.11
+source_directory: /
+build:
+  dockerfile: Dockerfile
+run:
+  command: gunicorn -w 4 -b 0.0.0.0:8080 app:server
+  port: 8080

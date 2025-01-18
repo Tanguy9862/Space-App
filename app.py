@@ -1,6 +1,4 @@
 import dash
-import pandas as pd
-
 from dash import html, dcc, Output, Input, callback
 
 from assets.footer import footer

@@ -1,4 +1,3 @@
-import json
 import datetime
 import dash
 import dash_mantine_components as dmc
@@ -23,13 +22,6 @@ dash.register_page(
     description='Dive into the key milestones of space exploration, presented in a unique cytoscape constellation '
                 'format. Each point represents a significant event, complete with descriptions and images'
 )
-
-# with open('data/historical_data.json', 'r', encoding='utf-8') as json_file:
-#     historical_data = json.load(json_file)
-#
-# all_years = [int(item['DATE'].split(',')[-1].strip()) for item in historical_data] + [1950]
-# MIN_YEARS, MAX_YEARS = min(all_years), max(all_years)
-# YEAR_BOUND_INF, YEAR_BOUND_SUP, YEAR_INCREMENT = 1940, 2021, 20
 
 YEAR_INCREMENT = 20
 
