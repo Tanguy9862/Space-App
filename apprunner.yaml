@@ -6,4 +6,3 @@ build:
       - pip install -r requirements.txt
 run:
   command: gunicorn -w 4 -b 0.0.0.0:8080 app:server
-  port: 8080
