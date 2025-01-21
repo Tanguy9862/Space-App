@@ -1,9 +1,19 @@
 import dash
+import logging
 from dash import html, dcc, Output, Input, callback
 
+from config import CONFIG
 from assets.footer import footer
 from pages.nav import navbar
 from utils.loading_data import load_data
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    force=True
+)
+
+logging.info(f"Environment chosen: {CONFIG.ENV}")
 
 app = dash.Dash(
     __name__,

@@ -4,7 +4,7 @@ import json
 import logging
 from io import StringIO
 
-from config import CONFIG, LambdaConfig, LocalConfig
+from config import CONFIG, AWSConfig, LocalConfig
 
 
 def load_data(data_type: str, file_type: str):
@@ -15,7 +15,7 @@ def load_data(data_type: str, file_type: str):
     if isinstance(CONFIG, LocalConfig):
 
         filepath = f'{CONFIG.DATA_DIR_NAME}/{filename}'
-        logging.info(f'[LOCAL ENV] -> Trying to load data for: {filename}')
+        logging.info(f'[LOCAL] -> Trying to load data for: {filename}')
 
         try:
             if file_type == 'json':
@@ -31,9 +31,9 @@ def load_data(data_type: str, file_type: str):
             return data, last_update
 
     # Loading data from AWS using S3 bucket
-    elif isinstance(CONFIG, LambdaConfig):
+    elif isinstance(CONFIG, AWSConfig):
         s3 = boto3.client('s3')
-        logging.info(f'[AWS ENV] -> Attempting to load data file from Bucket: {CONFIG.BUCKET_NAME}, Key: {filename}')
+        logging.info(f'[AWS] -> Attempting to load data file from Bucket: {CONFIG.BUCKET_NAME}, Key: {filename}')
 
         try:
             response = s3.get_object(Bucket=CONFIG.BUCKET_NAME, Key=filename)
