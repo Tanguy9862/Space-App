@@ -1,8 +1,0 @@
-version: 1.0
-runtime: python3
-build:
-  commands:
-    build:
-      - pip install -r requirements.txt
-run:
-  command: gunicorn -w 2 -b 0.0.0.0:8080 app:server

@@ -4,7 +4,6 @@ from user_config import (
     HISTORICAL_FACTS_FILENAME,
     PAST_LAUNCHES_FILENAME,
     NEXT_LAUNCH_FILENAME,
-    AWS_BUCKET_NAME,
     GCP_BUCKET_NAME,
 )
 from utils.config_loader import get_env_variable
@@ -25,20 +24,13 @@ class LocalConfig(BaseConfig):
     DATA_DIR_NAME = DATA_DIRECTORY_NAME
 
 
-class AWSConfig(BaseConfig):
-    ENV = 'aws'
-    BUCKET_NAME = AWS_BUCKET_NAME
-
-
 class GCPConfig(BaseConfig):
     ENV = 'gcp'
     BUCKET_NAME = GCP_BUCKET_NAME
 
 
 def get_config():
-    if ENV == 'aws':
-        return AWSConfig()
-    elif ENV == 'gcp':
+    if ENV == 'gcp':
         return GCPConfig()
     return LocalConfig()
 

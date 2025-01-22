@@ -1,5 +1,4 @@
 venv/
 .idea
-.env
 spacexploration-gcp-bucket-access.json
 env-gcp.json
