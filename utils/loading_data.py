@@ -3,7 +3,6 @@ import boto3
 import json
 import logging
 from io import StringIO
-from google.cloud import storage
 
 from config import CONFIG, AWSConfig, LocalConfig
 
@@ -51,7 +50,7 @@ def load_data(data_type: str, file_type: str):
             return data, last_update
 
     raise RuntimeError(
-        f"Invalid CONFIG detected. CONFIG must be an instance of either LocalConfig or LambdaConfig. "
+        f"Invalid CONFIG detected. CONFIG must be an instance of either LocalConfig or AWSConfig. "
         f"Current CONFIG: {type(CONFIG).__name__}"
     )
 

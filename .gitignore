@@ -1,7 +1,2 @@
 venv
-data
 .idea
-.env
-spacexploration-gcp-bucket-access.json
-env-gcp.json
-utils/gcp_secrets_manager.py
