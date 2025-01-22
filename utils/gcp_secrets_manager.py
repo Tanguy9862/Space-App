@@ -17,7 +17,6 @@ def get_secret_from_gcp(secret_name: str, project_id: str) -> Optional[Dict[str,
     try:
         client = secretmanager.SecretManagerServiceClient()
         secret_path = f"projects/{project_id}/secrets/{secret_name}/versions/latest"
-
         response = client.access_secret_version(request={"name": secret_path})
         secret_payload = response.payload.data.decode("UTF-8")
         secrets = eval(secret_payload)  # Convert JSON string to dict

@@ -1,4 +1,3 @@
-import logging
 from user_config import (
     DEFAULT_ENVIRONMENT,
     DATA_DIRECTORY_NAME,
