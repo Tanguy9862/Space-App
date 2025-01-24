@@ -158,6 +158,10 @@ layout = dmc.NotificationsProvider(
         dmc.Grid(
             [
                 html.Div(id='insights-notifications-container'),
+                dcc.Store('past-launches-data'),
+                dcc.Store('next-launch-data'),
+                dcc.Store(id='next-launch-last-update'),
+                dcc.Store(id='past-launches-last-update'),
                 dmc.Col(
                     [
                         dmc.Container(

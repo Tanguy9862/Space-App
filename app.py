@@ -38,10 +38,6 @@ app.layout = html.Div(
         navbar(),
         dash.page_container,
         footer,
-        dcc.Store('past-launches-data'),
-        dcc.Store('next-launch-data'),
-        dcc.Store(id='next-launch-last-update'),
-        dcc.Store(id='past-launches-last-update'),
     ]
 )
 
