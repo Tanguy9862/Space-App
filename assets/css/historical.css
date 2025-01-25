@@ -13,3 +13,6 @@
     opacity: 0
 }
 
+.mantine-Slider-track::before {
+    background-color: #a9a9a9
+}
