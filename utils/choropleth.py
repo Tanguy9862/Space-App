@@ -3,6 +3,7 @@ import plotly.express as px
 
 # FIGURE:
 def create_choropleth_chart(df_launches_per_country):
+
     fig = px.choropleth(
         df_launches_per_country,
         locations='country_code',
