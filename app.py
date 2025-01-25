@@ -1,11 +1,14 @@
 import dash
 import logging
+import pandas as pd
 from dash import html, dcc, Output, Input, callback, ALL
 
 from config import CONFIG
 from assets.footer import footer
 from pages.nav import navbar
 from utils.loading_data import load_data
+
+pd.set_option('display.max_colwidth', None)
 
 logging.basicConfig(
     level=logging.INFO,

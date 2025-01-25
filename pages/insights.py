@@ -158,9 +158,9 @@ layout = dmc.NotificationsProvider(
     [
         dmc.Grid(
             [
-                html.Div(id='insights-notifications-container'),
                 dcc.Store('next-launch-data'),
                 dcc.Store(id='next-launch-last-update'),
+                html.Div(id='insights-notifications-container'),
                 dmc.Col(
                     [
                         dmc.Container(
@@ -438,9 +438,6 @@ def update_right_content(click_data, _, next_launch_data, past_launches_data):
             {'Detail': 'count', 'Image_Link': 'first'}).reset_index()
         most_used_model = most_used_model.sort_values('Detail', ascending=False).iloc[0]
 
-        pd.set_option('display.max_colwidth', None)
-        # print(most_used_model)
-
         return right_content(
             general_data,
             title=year,
@@ -453,25 +450,28 @@ def update_right_content(click_data, _, next_launch_data, past_launches_data):
         ), 'hide'
 
     else:
-        branch = next_launch_data[0]
-        organisation = branch['ORGANISATION']
-        year = dt.datetime.now().year
+        if next_launch_data:
+            branch = next_launch_data[0]
+            organisation = branch['ORGANISATION']
+            year = dt.datetime.now().year
 
-        next_launch_general = {
-            'PRICE': ['Rocket price in millions of dollars', (branch['PRICE'] and f'${branch["PRICE"]}M') or '-'],
-            'TOTAL MISSION': [f'Total mission of {organisation}', branch['TOTAL MISSION'] or '-'],
-            f'IN {year}': [f'Total mission of {organisation} in {year}', branch['TOTAL MISSION YEAR'] or '-']
-        }
+            next_launch_general = {
+                'PRICE': ['Rocket price in millions of dollars', (branch['PRICE'] and f'${branch["PRICE"]}M') or '-'],
+                'TOTAL MISSION': [f'Total mission of {organisation}', branch['TOTAL MISSION'] or '-'],
+                f'IN {year}': [f'Total mission of {organisation} in {year}', branch['TOTAL MISSION YEAR'] or '-']
+            }
 
-        return right_content(
-            next_launch_general,
-            title=organisation,
-            image=branch['IMAGE'],
-            add_content_fn=right_content_on_launch,
-            rocket_name=branch['ROCKET'],
-            mission_description=branch['MISSION DETAIL'],
-            live_link=branch['VIDEO']
-        ), 'hide'
+            return right_content(
+                next_launch_general,
+                title=organisation,
+                image=branch['IMAGE'],
+                add_content_fn=right_content_on_launch,
+                rocket_name=branch['ROCKET'],
+                mission_description=branch['MISSION DETAIL'],
+                live_link=branch['VIDEO']
+            ), 'hide'
+
+        return dash.no_update
 
 
 @callback(

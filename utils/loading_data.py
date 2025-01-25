@@ -36,7 +36,7 @@ def load_data(data_type: str, file_type: str):
         try:
             client = storage.Client()
             bucket = client.get_bucket(CONFIG.BUCKET_NAME)
-            blob = bucket.blob(filename)
+            blob = bucket.get_blob(filename)
 
             if not blob.exists():
                 raise FileNotFoundError(f"Blob {filename} does not exist in bucket {CONFIG.BUCKET_NAME}.")

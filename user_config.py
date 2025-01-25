@@ -1,3 +1,5 @@
+import os
+
 # Default environment that will be used if none is specified (used in config_loader.py)
 DEFAULT_ENVIRONMENT = 'local'
 
@@ -8,7 +10,7 @@ PAST_LAUNCHES_FILENAME = 'nsf_past_launches.csv'
 NEXT_LAUNCH_FILENAME = 'nsf_next_launch.json'
 
 # GCP Configuration (if running in a GCP environment)
-GCP_PROJECT_ID = 'your-gcp-project-id-name'
+GCP_PROJECT_ID = 'your-gcp-project-id'
 GCP_BUCKET_NAME = 'your-gcp-bucket-name'
 GCP_SECRET_NAME = 'your-gcp-secret-name'  # The name of the secret in GCP Secret Manager, used to store the
 # environment configuration (e.g., ENV=gcp)
