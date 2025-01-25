@@ -5,7 +5,7 @@ from dash_iconify import DashIconify
 def create_notification(page, date: str, data_type: str, freq: str):
     return dmc.Notification(
             id=f'{page}-notification',
-            title=f'{data_type} Last Updated ({freq})',
+            title=f'{data_type} Last Updated (checked {freq})',
             action='show',
             message=date,
             autoClose=False,
