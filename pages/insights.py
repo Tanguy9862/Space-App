@@ -11,6 +11,7 @@ from plotly.graph_objs import Figure
 from utils.insights_processing import plot_launch_per_year, create_df_best_month_launches, create_monthly_bar_chart, \
     create_sunburst_chart
 from utils.helpers import create_notification
+from collections import deque
 
 FIG_CONFIG = {
     'displayModeBar': False,
@@ -158,11 +159,32 @@ layout = dmc.NotificationsProvider(
         dmc.Grid(
             [
                 html.Div(id='insights-notifications-container'),
+                dcc.Store('next-launch-data'),
+                dcc.Store(id='next-launch-last-update'),
                 dmc.Col(
                     [
                         dmc.Container(
                             [
-                                dmc.Container(id='next-launch-container', children=[], px=0),
+                                dmc.Group(
+                                    [
+                                        dmc.Tooltip(
+                                            [
+                                                dmc.ActionIcon(
+                                                    DashIconify(icon='ri:more-fill', color='white'),
+                                                    id='next-launch-btn',
+                                                    variant='outline',
+                                                    radius='lg'
+                                                )
+                                            ],
+                                            label='View upcoming rocket launch details',
+                                            withArrow=True,
+                                            transition='fade'
+                                        )
+                                    ],
+                                    id='next-launch-container',
+                                    position='apart',
+                                    mb='lg'
+                                ),
                                 dmc.Divider(labelPosition='center', label='Launches over time', color='white', mt=35,
                                             mb=20),
                                 dmc.Group(
@@ -353,50 +375,30 @@ def launches_add_lines(_1, _2, fig, data):
 
 @callback(
     Output('next-launch-container', 'children'),
-    Input('next-launch-data', 'data')
+    Input('next-launch-data', 'data'),
+    State('next-launch-container', 'children')
 )
-def update_next_launch_container(next_launch_data):
+def update_next_launch_container(next_launch_info, current_children: list):
     """
     Show details on the right side about next launch
     """
-    return [
-        dmc.Group(
+    updated_children = deque(current_children)
+    updated_children.extendleft(
+        dmc.Stack(
             [
-                *[
-                    dmc.Stack(
-                        [
-                            dmc.Text(key, transform='uppercase',
-                                     color='rgba(255, 255, 255, 0.4)',
-                                     style={'font-size': '1rem'}),
-                            dmc.Title(value, color='white', order=4)
-                        ],
-                        spacing=0
-                    )
-                    for key, value in next_launch_data[0].items() if
-                    key in {'NEXT LAUNCH', 'ORGANISATION',
-                            'ROCKET'}
-                ],
-                *[
-                    dmc.Tooltip(
-                        [
-                            dmc.ActionIcon(
-                                DashIconify(icon='ri:more-fill', color='white'),
-                                id='next-launch-btn',
-                                variant='outline',
-                                radius='lg'
-                            )
-                        ],
-                        label='View upcoming rocket launch details',
-                        withArrow=True,
-                        transition='fade'
-                    )
-
-                ]
+                dmc.Text(key, transform='uppercase',
+                         color='rgba(255, 255, 255, 0.4)',
+                         style={'font-size': '1rem'}),
+                dmc.Title(value, color='white', order=4)
             ],
-            position='apart',
-            mb='lg'
+            spacing=0
         )
-    ]
+        for key, value in next_launch_info[0].items() if
+        key in {'NEXT LAUNCH', 'ORGANISATION',
+                'ROCKET'}
+    )
+
+    return list(updated_children)
 
 
 @callback(
@@ -570,29 +572,6 @@ def update_insights_notifications(next_launch_update_date, past_launches_update_
     )
 
     return [next_launch_notification, past_launches_notification]
-
-
-
-# @callback(
-#     Output('notifications-container', 'children'),
-#     Input('notifications-container', 'id'),
-# )
-# def show_notifications(_):
-#     return [
-#         dmc.Notification(
-#             id='notif',
-#             title='Data Last Updated',
-#             action='show',
-#             message=f'Last updated on {read_from_gcs("date_update.txt").download_as_text()}',
-#             autoClose=False,
-#             icon=DashIconify(icon='material-symbols:system-update-alt'),
-#             style={'background-color': 'rgba(0, 0, 0, 0)', 'border': 'none', 'color': 'white'},
-#             styles={
-#                 'title': {'color': 'white'},
-#                 'description': {'color': '#E6E6E6'}
-#             }
-#         ),
-#     ]
 
 
 clientside_callback(

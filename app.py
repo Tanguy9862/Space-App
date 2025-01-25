@@ -1,6 +1,6 @@
 import dash
 import logging
-from dash import html, dcc, Output, Input, callback
+from dash import html, dcc, Output, Input, callback, ALL
 
 from config import CONFIG
 from assets.footer import footer
@@ -36,12 +36,10 @@ server = app.server
 app.layout = html.Div(
     [
         navbar(),
+        dcc.Store('past-launches-data'),
+        dcc.Store(id='past-launches-last-update'),
         dash.page_container,
         footer,
-        dcc.Store('past-launches-data'),
-        dcc.Store('next-launch-data'),
-        dcc.Store(id='next-launch-last-update'),
-        dcc.Store(id='past-launches-last-update'),
     ]
 )
 

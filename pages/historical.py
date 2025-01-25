@@ -57,6 +57,7 @@ layout = dmc.NotificationsProvider(
         dmc.Grid(
             [
                 html.Div(id='historical-notification-container'),
+                dcc.Store(id='historical-data'),
                 dcc.Store(id='historical-facts-last-update'),
                 dmc.Col(
                     children=[
@@ -73,21 +74,14 @@ layout = dmc.NotificationsProvider(
                             [
                                 dmc.RangeSlider(
                                     id='year-slider',
-                                    # value=[MIN_YEARS, MAX_YEARS],
-                                    # min=MIN_YEARS,
-                                    # max=MAX_YEARS,
                                     minRange=1,
-                                    # marks=[
-                                    #     {'value': i, 'label': i} for i in range(YEAR_BOUND_INF, YEAR_BOUND_SUP, YEAR_INCREMENT)
-                                    # ],
-                                    color='white',
                                     style={'width': '50%'},
                                     styles={
-                                        'bar': {'background-color': '#D291DF', 'height': '3px'},
+                                        'bar': {'background-color': 'white', 'height': '3px'},
                                         'track': {'height': '3px'},
                                         'mark': {'display': 'None'},
                                         'markLabel': {'margin-top': '15px'},
-                                        'thumb': {'background-color': '#D291DF', 'border': 'solid 2px white'}
+                                        'thumb': {'background-color': 'white', 'border': 'solid 2px white'}
                                     }
                                 ),
                                 dmc.Tooltip(
@@ -125,8 +119,6 @@ layout = dmc.NotificationsProvider(
                     ],
                     md=12, lg=3
                 ),
-                # dcc.Store(id='historical-data', data=historical_data),
-                dcc.Store(id='historical-data', data=None),
             ],
         )
     ],
