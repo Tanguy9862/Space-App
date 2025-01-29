@@ -1,6 +1,6 @@
 # 🚀 Space App
 
-An interactive dashboard developed with Dash by Plotly, providing real-time and historical insights on space exploration. The dashboard autonomously updates multiple datasets through a fully automated pipeline of Google Cloud Functions and scrapers, ensuring the information is always up-to-date without any manual intervention.
+An interactive dashboard developed with Dash by Plotly, providing **real-time** and historical insights on space exploration. The dashboard **autonomously updates multiple datasets through a fully automated pipeline of Google Cloud Functions and scrapers**, ensuring the information is always up-to-date without any manual intervention.
 
 🎥 **[Watch the demo video here](https://youtu.be/2rO7on8kaW4?si=nAtkzaNwbZTvvTnW)**  
 
