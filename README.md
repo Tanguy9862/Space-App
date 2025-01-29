@@ -12,8 +12,8 @@ This is the **local deployment** branch. The project also supports **AWS** and *
 
 ## 🖥 Dashboard Preview
 <p>
-    <img src="img_readme/dashboard_01.png" alt="Dashboard Screenshot 1" width="450px" style="display: inline-block; margin-right: 10px;">
-    <img src="img_readme/dashboard_02.png" alt="Dashboard Screenshot 2" width="450px" style="display: inline-block;">
+    <img src="img_readme/dashboard_01.png" alt="Dashboard Screenshot 1" width="430px" style="display: inline-block; margin-right: 10px;">
+    <img src="img_readme/dashboard_02.png" alt="Dashboard Screenshot 2" width="430px" style="display: inline-block;">
 </p>
 
 ## ⚙️ Automated Pipeline
